@@ -1,367 +1,261 @@
 #include <iostream>
-#include <stdexcept>
-#include <sstream>
-
 using namespace std;
 
-class Rational
+struct A
 {
-    int numer;
-    int denom;
-    int gcdND;
+    virtual void fA() { cout << "A::fA()" << endl; }
+    void fB() { cout << "A::fB()" << endl; } // not virtual
+    void fC() { cout << "A::fC()" << endl; } // not virtual
 
-    void initialize(int numerator, int denominator);
-public:
-    Rational(int numerator, int denominator = 1);
-    virtual ~Rational() {}
-    Rational(const Rational & copy);
-
-    Rational & operator= (Rational const& other);
-    Rational & operator= (int i);
-
-    int numerator() const { return numer; }
-    int denominator() const { return denom; }
-
-    static const Rational normalize(Rational const& other);
-    static const Rational normalized(int numerator, int denominator);
-
-    Rational operator+ (Rational const& other) const;
-    Rational operator- (Rational const& other) const;
-    Rational operator* (Rational const& other) const;
-    Rational operator/ (Rational const& other) const;
-
-    Rational operator+ () const;
-    Rational operator- () const;
-
-    bool operator== (Rational const& other) const;
-    bool operator>= (Rational const& other);
-    bool operator<= (Rational const& other);
-    bool operator> (Rational const& other);
-    bool operator< (Rational const& other);
-
-    friend std::ostream & operator<< (std::ostream &, const Rational &);
-    friend std::istream & operator>> (std::istream &, Rational &);
+    A() { cout << "A::A()" << endl; }
+    virtual ~A() { cout << "~A::A()" << endl; }
 };
 
-Rational operator+ (Rational const& r, int i);
-Rational operator+ (int i, Rational const& r);
-
-Rational operator- (Rational const& r, int i);
-Rational operator- (int i, Rational const& r);
-
-Rational operator* (Rational const& r, int i);
-Rational operator* (int i, Rational const& r);
-
-Rational operator/ (Rational const& r, int i);
-Rational operator/ (int i, Rational const& r);
-
-
-
-int gcd (int a, int b);
-
-Rational::Rational(int numerator, int denominator)
+struct BfromA : A
 {
-    if (denominator == 0)
-        throw new std::invalid_argument("Denominator cannot be 0!");
+    void fA() { cout << "BfromA::fA()" << endl; }
+    virtual void fB() { cout << "BfromA::fB()" << endl; }
 
-    initialize(numerator, denominator);
+    BfromA() { cout << "BfromA::BfromA()" << endl; }
+    virtual ~BfromA() { cout << "~BfromA::BfromA()" << endl; }
+};
+
+struct CfromB : BfromA
+{
+    void fA() { cout << "CfromB::fA()" << endl; }
+    void fB() { cout << "CfromB::fB()" << endl; }
+    void fC() { cout << "CfromB::fC()" << endl; }
+
+    CfromB() { cout << "CfromB::CfromB()" << endl; }
+    ~CfromB() { cout << "~CfromB::CfromB()" << endl; }
+};
+
+struct DFromNothing {
+    void fA() { cout << "DFromNothing::fA()" << endl; }
+    void fB() { cout << "DFromNothing::fB()" << endl; }
+    void fC() { cout << "DFromNothing::fC()" << endl; }
+
+    DFromNothing() { cout << "DFromNothing::DFromNothing()" << endl; }
+    ~DFromNothing() { cout << "~DFromNothing::DFromNothing()" << endl; }
+};
+
+void polyMorphDemo1()
+{
+    cout << "polyMorphDemo1()..." << endl;
+
+    A a;
+    cout << endl;
+
+    BfromA b;
+    cout << endl;
+
+    CfromB c;
+    cout << endl;
+
+    cout << "calling fA(), fB(), fC() for object A a ..." << endl;
+    a.fA(); a.fB(); a.fC();
+    cout << endl;
+
+    cout << "calling fA(), fB(), fC() for object BfromA b ..." << endl;
+    b.fA(); b.fB(); b.fC();
+    cout << endl;
+
+    cout << "calling fA(), fB(), fC() for object CfromB c ..." << endl;
+    c.fA(); c.fB(); c.fC();
+    cout << endl;
 }
 
-Rational::Rational(const Rational & copy)
+void polyMorphDemo2()
 {
-    initialize(copy.numer, copy.denom);
+    cout << "polyMorphDemo2()..." << endl;
+
+    cout << "constructing A..." << endl;
+    A * pAA = new A; cout << endl;
+    cout << "calling methods with the use of 'A * pAA = new A'" << endl;
+    pAA->fA(); pAA->fB(); pAA->fC();
+    cout << endl;
+
+    cout << "constructing BfromA..." << endl;
+    A * pAB = new BfromA; cout << endl;
+    cout << "calling methods with the use of 'A * pAB = new BfromA'" << endl;
+    pAB->fA(); pAB->fB(); pAB->fC();
+    cout << endl;
+
+    cout << "constructing CfromB..." << endl;
+    A * pAC = new CfromB; cout << endl;
+    cout << "calling methods with the use of 'A * pAC = new CfromB'" << endl;
+    pAC->fA(); pAC->fB(); pAC->fC();
+    cout << endl;
+
+    cout << "constructing BfromA..." << endl;
+    BfromA * pBB = new BfromA; cout << endl;
+    cout << "calling methods with the use of 'BfromA * pBB = new BfromA'" << endl;
+    pBB->fA(); pBB->fB(); pBB->fC();
+    cout << endl;
+
+    cout << "constructing CfromB..." << endl;
+    BfromA * pBC = new CfromB; cout << endl;
+    cout << "calling methods with the use of 'BfromA * pBC = new CfromB'" << endl;
+    pBC->fA(); pBC->fB(); pBC->fC();
+    cout << endl;
+
+    cout << "deleting objects..." << endl;
+    delete pAA; cout << endl;
+    delete pAB; cout << endl;
+    delete pAC; cout << endl;
+    delete pBB; cout << endl;
+    delete pBC; cout << endl;
 }
 
-Rational & Rational::operator= (Rational const& other)
+template <typename T>
+void paramPolymDemoFun(T polyValue)
 {
-    this->numer = other.numer;
-    this->denom = other.denom;
-    return *this;
+    polyValue.fA();
+    polyValue.fB();
+    polyValue.fC();
 }
 
-Rational & Rational::operator= (int i)
+void polyMorphDemo3()
 {
-    this->numer = i;
-    this->denom = 1;
-    return *this;
+    cout << "polyMorphDemo3()..." << endl;
+
+    A a; cout << endl;
+    BfromA b; cout << endl;
+    CfromB c; cout << endl;
+    DFromNothing d; cout << endl;
+
+    cout << "calling fA(), fB(), fC() for object A a ..." << endl;
+    paramPolymDemoFun(a);
+    cout << endl;
+
+    cout << "calling fA(), fB(), fC() for object B b ..." << endl;
+    paramPolymDemoFun(b);
+    cout << endl;
+
+    cout << "calling fA(), fB(), fC() for object C c ..." << endl;
+    paramPolymDemoFun(c);
+    cout << endl;
+
+    cout << "calling fA(), fB(), fC() for object D d ..." << endl;
+    paramPolymDemoFun(d);
+    cout << endl;
 }
 
-const Rational Rational::normalize(Rational const & other)
+///////////////////////////////////////////////////////////////////////////////
+
+typedef void (*FPT)(void *);
+
+///////////////////////////////////////////////////////////////////////////////
+typedef struct CStructBase
 {
-    int rgcd = gcd(other.numer, other.denom);
-    return Rational(other.numer / rgcd, other.denom / rgcd);
+    void **vt;
+    int a;
+} CStructBaseT;
+
+// "a method" :)
+void cStructM1B(void *pObj) // void cStructM1B(CStructBaseT *pSelf)
+{
+    CStructBase *pBase = static_cast<CStructBase*>(pObj);
+    cout << "CStructBase::cStructM1(), a = "
+         << pBase->a << endl;
 }
 
-const Rational Rational::normalized(int numerator, int denominator)
+// "constructor" :)
+CStructBaseT* createCStructBaseT(int a)
 {
-    int rgcd = gcd(numerator, denominator);
-    return Rational(numerator / rgcd, denominator / rgcd);
+    CStructBaseT *pCStructBase = new CStructBaseT;
+    pCStructBase->vt = new void *[1];
+    // pCStructBase->vt[0] = (void*) &cStructM1B
+    pCStructBase->vt[0] = reinterpret_cast<void*> (cStructM1B);
+    pCStructBase->a = a;
+
+    return pCStructBase;
 }
 
-Rational Rational::operator+ (Rational const & other) const
+// "destructor" :)
+void deleteCStructBaseT(void *pObj)
 {
-    int resDenom = this->denom * other.denom;
-    int resNumer = this->numer * other.denom + other.numer * this->denom;
-
-    return normalized(resNumer, resDenom);
+    cout << "deleteCStructBaseT()..." << endl;
+    CStructBaseT *pCStructBaseObj = static_cast<CStructBaseT *>(pObj);
+    delete [] pCStructBaseObj->vt;
+    delete pCStructBaseObj;
 }
 
-Rational Rational::operator- (Rational const & other) const
+///////////////////////////////////////////////////////////////////////////////
+typedef struct CStructDerived
 {
-    int resDenom = this->denom * other.denom;
-    int resNumer = this->numer * other.denom - other.numer * this->denom;
+    void **vt;
+    CStructBase *pParent;
+    int b;
+} CStructDerivedT;
 
-    return normalized(resNumer, resDenom);
+void cStructM1D(void *pObj)
+{
+    CStructDerived *pDerived = static_cast<CStructDerivedT*>(pObj);
+    cout << "CStructDerived::cStructM1D(), a = "
+         << pDerived->pParent->a << ", b = " << pDerived->b << endl;
 }
 
-Rational Rational::operator* (const Rational & other) const
+CStructDerivedT* createCStructDerivedT(CStructBaseT* pParent, int b)
 {
-    int resNumer = this->numer * other.numer;
-    int resDenom = this->denom * other.denom;
+    CStructDerivedT *pCStructDerived = new CStructDerivedT;
+    pCStructDerived->vt = new void *[1];
+    pCStructDerived->vt[0] = reinterpret_cast<void*> (cStructM1D); //cannot static_cast
+    pCStructDerived->pParent = pParent;
+    pCStructDerived->b = b;
 
-    return normalized(resNumer, resDenom);
+    return pCStructDerived;
 }
 
-Rational Rational::operator/ (Rational const& other) const
+void deleteCStructDerivedT(void *pObj, bool deleteParent = false)
 {
-    int resNumer = this->numer * other.denom;
-    int resDenom = this->denom * other.numer;
-
-    return normalized(resNumer, resDenom);
-}
-
-Rational Rational::operator+ () const
-{
-    return Rational(this->numer, this->denom);
-}
-
-Rational Rational::operator- () const
-{
-    return Rational(-1 * this->numer, this->denom);
-}
-
-bool Rational::operator== (Rational const & other) const
-{
-    return (this->numer * other.denom == this->denom * other.numer);
-}
-
-bool Rational::operator>= (Rational const& other)
-{
-    return (*this == other) || (*this > other);
-}
-
-bool Rational::operator<= (Rational const& other)
-{
-    return (*this == other) || (*this < other);
-}
-
-bool Rational::operator> (Rational const& other)
-{
-    return (this->numer * other.denom > this->denom * other.numer);
-}
-
-bool Rational::operator< (Rational const& other)
-{
-    return (this->numer * other.denom < this->denom * other.numer);
-}
-
-void Rational::initialize(int numerator, int denominator)
-{
-    if (denominator < 0) {
-        this->numer = -numerator;
-        this->denom = -denominator;
-    } else {
-        this->numer = numerator;
-        this->denom = denominator;
-    }
-    this->gcdND = gcd(this->numer, this->denom);
-}
-
-Rational operator+ (Rational const& r, int i)
-{
-    return r + Rational(i);
-}
-
-Rational operator+ (int i, Rational const& r)
-{
-    return operator+(r, i);
-}
-
-Rational operator- (Rational const& r, int i)
-{
-    return r - Rational(i);
-}
-
-Rational operator- (int i, Rational const& r)
-{
-    return operator-(r, i);
-}
-
-Rational operator* (Rational const& r, int i)
-{
-    return r - Rational(i);
-}
-
-Rational operator* (int i, Rational const& r)
-{
-    return operator*(r, i);
-}
-
-Rational operator/ (Rational const& r, int i)
-{
-    return r / Rational(i);
-}
-
-Rational operator/ (int i, Rational const& r)
-{
-    return operator/(r, i);
-}
-
-std::ostream & operator<< (std::ostream & out, const Rational & r)
-{
-    std::stringstream rAsString;
-
-    if (r.denom == 1) {
-        rAsString << r.numer;
-    }
-    else {
-        rAsString << r.numer << "/" << r.denom;
-    }
-
-    if (r.numer < 0) {
-        out << "(" << rAsString.str() << ")";
-    } else {
-        out << rAsString.str();
-    }
-
-    return out;
-}
-
-std::istream & operator >> (std::istream & in, Rational & r)
-{
-    in >> r.numer ;
-    in.ignore(1);
-    in >> r.denom;
-
-    return in;
-}
-
-int gcd ( int a, int b)
-{
-    int c;
-
-    while ( a != 0 ) {
-        c = a; a = b%a;  b = c;
+    cout << "deleteCStructDerivedT()..." << endl;
+    CStructDerivedT* pCStructDerivedObj = static_cast<CStructDerivedT*>(pObj);
+    if (deleteParent) {
+        deleteCStructBaseT(pCStructDerivedObj->pParent);
     }
 
-    return b;
+    delete [] pCStructDerivedObj->vt;
+    delete pCStructDerivedObj;
+}
+///////////////////////////////////////////////////////////////////////////////
+
+void runPolyImplDemo()
+{
+    CStructBaseT *pBase = createCStructBaseT(1);
+    ((FPT) pBase->vt[0])(pBase);
+
+    CStructBaseT *pBase2 =
+            reinterpret_cast<CStructBaseT *>(createCStructDerivedT(pBase, 2));
+    reinterpret_cast<FPT>(pBase2->vt[0])(pBase2);
+
+    deleteCStructBaseT(pBase);
+    deleteCStructDerivedT(pBase2);
+
+    cout << endl;
 }
 
-void areEqual()
+void runPolymorphismFuncs()
 {
-    Rational r1(1,2), r2(3, 6), r3(1, 3), r5(18, 6);
-    Rational r4 = 3; //Rational(int)
+    polyMorphDemo1();
+    cout << endl;
 
-    if (r1 == r2) {
-        cout << r1 << " = " << r2 << endl;
-    } else {
-        cout << r1 << " != " << r2 << endl;
-    }
+    polyMorphDemo2();
+    cout << endl;
 
-
-    if (r2 == r3) {
-        cout << r2 << " = " << r3 << endl;
-    } else {
-        cout << r2 << " != " << r3 << endl;
-    }
-
-    if (r4 == r5) {
-        cout << r4 << " = " << r5 << endl;
-    } else {
-        cout << r4 << " !=" << r5 << endl;
-    }
-}
-
-void assignment()
-{
-    Rational r1(3,4), r2(1,5);
-    cout << "r1 = " << r1 << ", r2 = " << r2 << endl;
-    cout << "r2 = r1" << endl;
-    r2 = r1;
-    cout << "r2 = " << r2 << ", r1 = " << r1 << endl;
-}
-
-void addition()
-{
-   Rational r1(2,3), r2(2, 11), r3(1, -3), r4(3), r5(18, 6);
-
-   cout << r1 << " + " << r2 << " = " << r1 + r2 << endl;
-   cout << r1 << " + " << r3 << " = " << r1 + r3 << endl;
-   cout << r2 << " + " << r5 << " = " << r2 + r5 << endl;
-
-   cout << -r2 << " + " << r4 << " = " << -r2 + r5 << endl;
-
-   cout << r2 << " + " << 3 << " = " << r2 + 3 << endl;
-   cout << 3 << " + " << r2 << " = " << 3 + r2 << endl;
-}
-
-void substraction()
-{
-   Rational r1(2,3), r2(2, 11), r3(1, -3), r4(3), r5(18, 6);
-
-   cout << r1 << " - " << r2 << " = " << r1 - r2 << endl;
-   cout << r1 << " - " << r3 << " = " << r1 - r3 << endl;
-   cout << r2 << " - " << r5 << " = " << r2 - r5 << endl;
-}
-
-void multiplication()
-{
-    Rational r1(2,3), r2(2, 11), r3(1, -3), r4(3), r5(18, 6);
-
-    cout << r1 << " * " << r2 << " = " << r1 * r2 << endl;
-    cout << r1 << " * " << r3 << " = " << r1 * r3 << endl;
-    cout << r2 << " * " << r5 << " = " << r2 * r5 << endl;
-}
-
-void division()
-{
-    Rational r1(2,3), r2(2, 11), r3(1, -3), r4(3), r5(18, 6);
-
-    cout << r1 << " / " << r2 << " = " << r1 / r2 << endl;
-    cout << r1 << " / " << r3 << " = " << r1 / r3 << endl;
-    cout << r2 << " / " << r5 << " = " << r2 / r5 << endl;
-}
-
-void combined()
-{
-    Rational r2(2, 11), r3(1, -3), r5(18, 6);
-    Rational res1 = 3 + r2 * r3;
-    Rational res2 = (3 + r2) * r3;
-
-    Rational res3 = 3 + r3 * (r2 + 2) / (r5 - r3);
-
-    cout << 3 << " + " << r2 << " * " <<  r3 << " = " << res1 << endl;
-    cout << "(" << 3 << " + " << r2 << ")" << " * " <<  r3 << " = " << res2 << endl;
-    cout << 3 << " + " << r3 << " * " << "(" << r2 << " + " << 2 << ")" << "/" <<
-            "(" << r5 << " - " << r3 << ")" << " = " << res3 << endl;
+    polyMorphDemo3();
+    cout << endl;
 }
 
 int main()
 {
-    areEqual();
+    polyMorphDemo1();
     cout << endl;
-    assignment();
-    cout << endl;
-    addition();
-    cout << endl;
-    substraction();
-    cout << endl;
-    multiplication();
-    cout << endl;
-    division();
-    cout << endl;
-    combined();
 
-    return 0;
+    polyMorphDemo2();
+    cout << endl;
+
+    polyMorphDemo3();
+    cout << endl;
 }
 
